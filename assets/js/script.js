@@ -52,24 +52,76 @@ document.addEventListener('DOMContentLoaded', function() {
 // Theme toggle script
 document.addEventListener('DOMContentLoaded', function () {
                 const themeSwitch = document.getElementById('themeSwitch');
+                const modeSelect = document.getElementById('modeSelect');
                 const body = document.body;
-                if (!themeSwitch) return;
 
-                if (localStorage.getItem('theme') === 'dark') {
-                    body.classList.add('dark-mode');
-                    themeSwitch.checked = true;
+                function applyTheme(theme) {
+                    const resolvedTheme = theme === 'dark' ? 'dark' : 'light';
+                    body.classList.toggle('dark-mode', resolvedTheme === 'dark');
+                    localStorage.setItem('theme', resolvedTheme);
+
+                    if (themeSwitch) {
+                        themeSwitch.checked = resolvedTheme === 'dark';
+                    }
+
+                    if (modeSelect) {
+                        modeSelect.value = resolvedTheme;
+                    }
                 }
 
-                themeSwitch.addEventListener('change', function () {
-                    if (this.checked) {
-                        body.classList.add('dark-mode');
-                        localStorage.setItem('theme', 'dark');
-                    } else {
-                        body.classList.remove('dark-mode');
-                        localStorage.setItem('theme', 'light');
+                applyTheme(localStorage.getItem('theme'));
+
+                if (themeSwitch) {
+                    themeSwitch.addEventListener('change', function () {
+                        applyTheme(this.checked ? 'dark' : 'light');
+                    });
+                }
+
+                if (modeSelect) {
+                    modeSelect.addEventListener('change', function () {
+                        applyTheme(this.value);
+                    });
+                }
+
+                window.handleModeChange = function () {
+                    if (modeSelect) {
+                        applyTheme(modeSelect.value);
                     }
-                });
+                };
             });
+
+// Sidebar navigation transition
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarLinks = document.querySelectorAll('.sidebar .nav-link[href]');
+
+    if (!sidebar || !sidebarLinks.length) {
+        return;
+    }
+
+    sidebarLinks.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            const href = link.getAttribute('href');
+
+            if (!href || href === '#' || link.classList.contains('active')) {
+                return;
+            }
+
+            const targetUrl = new URL(href, window.location.href);
+            if (targetUrl.origin !== window.location.origin) {
+                return;
+            }
+
+            event.preventDefault();
+            sidebar.classList.add('sidebar-switching');
+            link.classList.add('is-switching');
+
+            window.setTimeout(function () {
+                window.location.href = targetUrl.href;
+            }, 180);
+        });
+    });
+});
 
 // Login form handling script
     document.addEventListener('DOMContentLoaded', function () {
@@ -370,22 +422,6 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Language changed to: ' + language);
         }
 
-        // Mode change (Light/Dark)
-        function handleModeChange() {
-            const mode = document.getElementById('modeSelect').value;
-            console.log('Mode changed to:', mode);
-
-            if (mode === 'dark') {
-                alert('Dark mode would be applied here. You can redirect to settingdark.php');
-                // In a real application, you might redirect to a dark mode page:
-                // window.location.href = 'settingdark.php';
-            } else if (mode === 'auto') {
-                alert('Auto mode selected');
-            } else {
-                alert('Light mode is currently active');
-            }
-        }
-
         // Change password
         function handleChangePassword() {
             alert('Redirecting to change password page...');
@@ -406,4 +442,3 @@ document.addEventListener('DOMContentLoaded', function () {
                 window.location.href = 'logout.php';
             }
         }
-

@@ -33,30 +33,54 @@ img {
 
 /* ===================== DARK MODE ===================== */
 body.dark-mode {
-    background: #404c40;
+    background: #050505;
 }
 
-body.dark-mode .sidebar,
+body.dark-mode .sidebar {
+    background: linear-gradient(180deg, #495447 0%, #445042 100%);
+    color: #e6f2e6;
+    box-shadow: 0 18px 32px rgba(0, 0, 0, 0.28);
+    animation: sidebarDarkModeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 body.dark-mode .topbar,
 body.dark-mode .budget-summary,
 body.dark-mode .card,
 body.dark-mode .budget-page,
 body.dark-mode .dashboard {
-    background: #404c40;
+    background: #050505;
     color: #e6f2e6;
 }
 
-body.dark-mode .add-budget-card {
-    background: #d9d9d9;
+body.dark-mode .topbar {
+    background: #445042;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26);
 }
 
-body.dark-mode .nav-link,
-body.dark-mode .nav-link:hover,
-body.dark-mode .nav-link.active,
+body.dark-mode .add-budget-card {
+    background: #b7b7b7;
+}
+
+body.dark-mode .logo,
+body.dark-mode .logo span,
+body.dark-mode .sidebar .menu-label,
+body.dark-mode .sidebar .nav-link,
+body.dark-mode .sidebar .nav-link:hover,
+body.dark-mode .sidebar .nav-link.active,
+body.dark-mode .sidebar .settings-link,
+body.dark-mode .sidebar .logout-btn,
+body.dark-mode .user-profile,
 body.dark-mode .menu-label,
 body.dark-mode .settings-link,
 body.dark-mode .user-label,
-body.dark-mode .user-email,
+body.dark-mode .user-email {
+    color: #f2f4ef;
+}
+
+body.dark-mode .dashboard-title {
+    color: #f7f6f2;
+}
+
 body.dark-mode .stat-label,
 body.dark-mode .stat-value,
 body.dark-mode .transaction-title,
@@ -64,10 +88,157 @@ body.dark-mode .budget-title {
     color: #0b2a0b;
 }
 
+body.dark-mode .sidebar .nav-link:hover,
+body.dark-mode .sidebar .nav-link.active {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+}
+
+body.dark-mode .logo-icon {
+    background: #404c40;
+}
+
+body.dark-mode .topbar .search-box {
+    background: #f9f9f7;
+}
+
+body.dark-mode .topbar .search-box input,
+body.dark-mode .topbar .search-box input::placeholder {
+    color: #304032;
+}
+
+body.dark-mode .topbar .icon-btn {
+    background: #f9f9f7;
+    color: #1f3a23;
+}
+
+body.dark-mode .topbar .icon-btn:hover {
+    background: #eceee7;
+}
+
+body.dark-mode .dashboard .stat-card {
+    position: relative;
+    border-radius: 14px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.26);
+}
+
+body.dark-mode .dashboard .stat-card.primary {
+    background: linear-gradient(135deg, #495447 0%, #52604f 100%);
+    overflow: hidden;
+}
+
+body.dark-mode .dashboard .stat-card.primary::after {
+    content: "";
+    position: absolute;
+    right: -18px;
+    bottom: -28px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.18) 34%, rgba(255, 255, 255, 0) 72%);
+    filter: blur(10px);
+    pointer-events: none;
+}
+
+body.dark-mode .dashboard .stat-card.primary .stat-label,
+body.dark-mode .dashboard .stat-card.primary .stat-value,
+body.dark-mode .dashboard .stat-card.primary .stat-action {
+    color: #f3f4ef;
+}
+
+body.dark-mode .dashboard .stat-card.secondary {
+    background: #b7b7b7;
+    color: #17391f;
+}
+
+body.dark-mode .dashboard .stat-card.secondary .stat-label,
+body.dark-mode .dashboard .stat-card.secondary .stat-value,
+body.dark-mode .dashboard .stat-card.secondary .stat-action {
+    color: #16361d;
+}
+
+body.dark-mode .dashboard .stat-icon {
+    background: #f8f8f5;
+}
+
+body.dark-mode .dashboard .transaction-section {
+    background: #465243;
+    border-radius: 14px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
+}
+
+body.dark-mode .dashboard .transaction-title {
+    color: #f2f4ef;
+    font-size: 20px;
+}
+
+body.dark-mode .dashboard .transaction-item {
+    width: 36px;
+    height: 36px;
+    background: #e4efe2;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+body.dark-mode .settings-page {
+    background: #445042;
+    border-radius: 18px;
+}
+
+body.dark-mode .settings-panel {
+    background: #f7f7f4;
+    border-color: #e6e8df;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+}
+
+body.dark-mode .profile-avatar,
+body.dark-mode .settings-panel-icon {
+    background: #404c40;
+}
+
+
+
+body.dark-mode .settings-panel-title,
+body.dark-mode .settings-label,
+body.dark-mode .settings-user-name,
+body.dark-mode .settings-link,
+body.dark-mode .settings-option {
+    color: #172b19;
+}
+
+body.dark-mode .settings-user-email {
+    color: #6d7468;
+    border-bottom-color: #d7dbd2;
+}
+
+body.dark-mode .settings-select-wrap select {
+    background: #d9d9d9;
+    color: #333;
+}
+
+body.dark-mode .settings-select-icon {
+    color: #fff;
+    background: transparent;
+    border-radius: 0;
+    width: auto;
+    height: auto;
+    display: block;
+    right: 12px;
+}
+
+body.dark-mode .settings-option {
+    border-bottom-color: #bfc6bc;
+}
+
+body.dark-mode .settings .logout-btn {
+    background: #fff;
+    color: #17391f;
+}
+
 /* ===================== APP LAYOUT ===================== */
 .container {
     display: flex;
     min-height: 100vh;
+    gap: 24px;
+    padding: 20px;
 }
 
 .main-content {
@@ -84,6 +255,16 @@ body.dark-mode .budget-title {
     display: flex;
     flex-direction: column;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+    border-radius: 0 24px 24px 0;
+    transition: background 0.45s ease, color 0.35s ease, box-shadow 0.35s ease, transform 0.45s ease;
+    animation: sidebarLightModeIn 0.45s ease;
+    transform-origin: left center;
+    will-change: transform, background, box-shadow;
+}
+
+.sidebar.sidebar-switching {
+    transform: translateX(6px);
+    box-shadow: 10px 0 22px rgba(0, 0, 0, 0.12);
 }
 
 .logo {
@@ -142,6 +323,10 @@ body.dark-mode .budget-title {
     transition: all 0.3s;
     font-size: 14px;
     width: 100%;
+}
+
+.nav-link.is-switching {
+    transform: translateX(8px);
 }
 
 .nav-link:hover,
@@ -203,10 +388,13 @@ body.dark-mode .budget-title {
 .topbar {
     background: #d9d9d9;
     padding: 20px 40px;
+    margin-top: 14px;
+    margin-right: 14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 18px;
 }
 
 .search-box {
@@ -474,7 +662,7 @@ body.dark-mode .budget-title {
 }
 
 .budget-card {
-    background: #d9d9d9;
+    background: #b7b7b7;
     border-radius: 10px;
     padding: 12px 14px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07);
@@ -558,7 +746,7 @@ body.dark-mode .budget-title {
 }
 
 .chart-placeholder {
-    background: #e8eceb;
+    background: #b7b7b7;
     border: 2px dashed #b9c5bf;
     height: 250px;
     border-radius: 10px;
@@ -927,23 +1115,33 @@ body.dark-mode .budget-title {
 }
 
 /* ===================== ANIMATIONS ===================== */
-@keyframes clickPulse {
-    0% { transform: scale(1); }
-    40% { transform: scale(1.08); }
-    100% { transform: scale(1); }
+@keyframes sidebarDarkModeIn {
+    0% {
+        opacity: 0.7;
+        transform: translateX(-12px) scale(0.985);
+        filter: brightness(0.9);
+    }
+    60% {
+        opacity: 1;
+        transform: translateX(4px) scale(1.01);
+        filter: brightness(1.03);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        filter: brightness(1);
+    }
 }
 
-@keyframes fadeOut {
-    0% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-15px); }
-}
-
-.nav-link.click-anim {
-    animation: clickPulse 0.25s ease;
-}
-
-body.page-exit {
-    animation: fadeOut 0.25s ease forwards;
+@keyframes sidebarLightModeIn {
+    0% {
+        opacity: 0.82;
+        transform: translateX(-8px) scale(0.992);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
 }
 
 /* ===================== RESPONSIVE ===================== */
