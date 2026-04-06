@@ -54,22 +54,50 @@ document.addEventListener('DOMContentLoaded', function () {
                 const themeSwitch = document.getElementById('themeSwitch');
                 const modeSelect = document.getElementById('modeSelect');
                 const body = document.body;
+                let autoThemeTimer = null;
 
-                function applyTheme(theme) {
-                    const resolvedTheme = theme === 'dark' ? 'dark' : 'light';
-                    body.classList.toggle('dark-mode', resolvedTheme === 'dark');
-                    localStorage.setItem('theme', resolvedTheme);
+                function resolveTheme(themePreference) {
+                    if (themePreference === 'auto') {
+                        const currentHour = new Date().getHours();
+                        return currentHour >= 12 ? 'dark' : 'light';
+                    }
 
+                    return themePreference === 'dark' ? 'dark' : 'light';
+                }
+
+                function syncThemeControls(themePreference, resolvedTheme) {
                     if (themeSwitch) {
                         themeSwitch.checked = resolvedTheme === 'dark';
                     }
 
                     if (modeSelect) {
-                        modeSelect.value = resolvedTheme;
+                        modeSelect.value = themePreference;
                     }
                 }
 
-                applyTheme(localStorage.getItem('theme'));
+                function applyTheme(themePreference) {
+                    const storedPreference = themePreference === 'auto' ? 'auto' : (themePreference === 'dark' ? 'dark' : 'light');
+                    const resolvedTheme = resolveTheme(storedPreference);
+
+                    body.classList.toggle('dark-mode', resolvedTheme === 'dark');
+                    localStorage.setItem('theme', storedPreference);
+                    syncThemeControls(storedPreference, resolvedTheme);
+
+                    if (autoThemeTimer) {
+                        window.clearInterval(autoThemeTimer);
+                        autoThemeTimer = null;
+                    }
+
+                    if (storedPreference === 'auto') {
+                        autoThemeTimer = window.setInterval(function () {
+                            const liveResolvedTheme = resolveTheme('auto');
+                            body.classList.toggle('dark-mode', liveResolvedTheme === 'dark');
+                            syncThemeControls('auto', liveResolvedTheme);
+                        }, 60000);
+                    }
+                }
+
+                applyTheme(localStorage.getItem('theme') || 'light');
 
                 if (themeSwitch) {
                     themeSwitch.addEventListener('change', function () {
@@ -225,17 +253,20 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('DOMContentLoaded', function () {
         const signupForm = document.querySelector('form[action="../backend/auth/signup_process.php"]');
         const fullnameInput = document.getElementById('fullname');
+        const signupUsernameInput = document.getElementById('signup-username');
         const signupEmailInput = document.getElementById('signup-email');
         const signupPasswordInput = document.getElementById('signup-password');
         const confirmPasswordInput = document.getElementById('confirm-password');
         const signupFullnameError = document.getElementById('signup-fullname-error');
+        const signupUsernameError = document.getElementById('signup-username-error');
         const signupEmailError = document.getElementById('signup-email-error');
         const signupPasswordError = document.getElementById('signup-password-error');
         const signupConfirmError = document.getElementById('signup-confirm-error');
         const signupFormMessage = document.getElementById('form-message');
         const signupCsrfInput = document.getElementById('csrf_token');
+        const signupActionInput = document.getElementById('signup_action');
 
-        if (!signupForm || !fullnameInput || !signupEmailInput || !signupPasswordInput || !confirmPasswordInput || !signupFullnameError || !signupEmailError || !signupPasswordError || !signupConfirmError || !signupFormMessage || !signupCsrfInput) {
+        if (!signupForm || !fullnameInput || !signupUsernameInput || !signupEmailInput || !signupPasswordInput || !confirmPasswordInput || !signupFullnameError || !signupUsernameError || !signupEmailError || !signupPasswordError || !signupConfirmError || !signupFormMessage || !signupCsrfInput) {
             return;
         }
 
@@ -248,6 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (isReload) {
             fullnameInput.value = '';
+            signupUsernameInput.value = '';
             signupEmailInput.value = '';
             signupPasswordInput.value = '';
             confirmPasswordInput.value = '';
@@ -256,6 +288,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (message) {
             if (errorField === 'fullname') {
                 signupFullnameError.textContent = message;
+            } else if (errorField === 'username') {
+                signupUsernameError.textContent = message;
             } else if (errorField === 'email') {
                 signupEmailError.textContent = message;
             } else if (errorField === 'password') {
@@ -268,7 +302,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         signupForm.addEventListener('submit', function (event) {
+                if (signupActionInput) {
+                    signupActionInput.value = 'register_only';
+                }
                 signupFullnameError.textContent = '';
+                signupUsernameError.textContent = '';
                 signupEmailError.textContent = '';
                 signupPasswordError.textContent = '';
                 signupConfirmError.textContent = '';
@@ -276,12 +314,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 let valid = true;
                 const fullnameValue = fullnameInput.value.trim();
+                const usernameValue = signupUsernameInput.value.trim();
                 const emailValue = signupEmailInput.value.trim();
                 const passwordValue = signupPasswordInput.value.trim();
                 const confirmValue = confirmPasswordInput.value.trim();
 
                 if (!fullnameValue) {
                     signupFullnameError.textContent = 'Full name is required.';
+                    valid = false;
+                }
+                if (!usernameValue) {
+                    signupUsernameError.textContent = 'Username is required.';
+                    valid = false;
+                } else if (!/^[A-Za-z0-9_]{3,30}$/.test(usernameValue)) {
+                    signupUsernameError.textContent = 'Use 3-30 letters, numbers, or underscores.';
                     valid = false;
                 }
                 if (!emailValue) {
@@ -315,7 +361,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const loginButton = document.getElementById('login-btn');
         if (loginButton) {
             loginButton.addEventListener('click', function () {
+                if (signupActionInput) {
+                    signupActionInput.value = 'register_and_login';
+                }
+
                 signupFullnameError.textContent = '';
+                signupUsernameError.textContent = '';
                 signupEmailError.textContent = '';
                 signupPasswordError.textContent = '';
                 signupConfirmError.textContent = '';
@@ -323,31 +374,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 let valid = true;
                 const fullnameValue = fullnameInput.value.trim();
+                const usernameValue = signupUsernameInput.value.trim();
                 const emailValue = signupEmailInput.value.trim();
                 const passwordValue = signupPasswordInput.value.trim();
-                const confirmValue = confirmPasswordInput.value.trim();
                 const csrfValue = signupCsrfInput.value.trim();
 
                 if (!fullnameValue) {
                     signupFullnameError.textContent = 'Full name is required.';
                     valid = false;
                 }
+
+                if (!usernameValue) {
+                    signupUsernameError.textContent = 'Username is required.';
+                    valid = false;
+                } else if (!/^[A-Za-z0-9_]{3,30}$/.test(usernameValue)) {
+                    signupUsernameError.textContent = 'Use 3-30 letters, numbers, or underscores.';
+                    valid = false;
+                }
+
                 if (!emailValue) {
                     signupEmailError.textContent = 'Email is required.';
                     valid = false;
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+                    signupEmailError.textContent = 'Please enter a valid email address.';
+                    valid = false;
                 }
+
                 if (!passwordValue) {
                     signupPasswordError.textContent = 'Password is required.';
                     valid = false;
                 }
-                if (!confirmValue) {
+
+                if (!confirmPasswordInput.value.trim()) {
                     signupConfirmError.textContent = 'Please confirm your password.';
                     valid = false;
-                }
-                if (passwordValue && confirmValue && passwordValue !== confirmValue) {
+                } else if (passwordValue !== confirmPasswordInput.value.trim()) {
                     signupConfirmError.textContent = 'Passwords do not match.';
                     valid = false;
                 }
+
                 if (!csrfValue) {
                     signupFormMessage.textContent = 'CSRF token is missing. Please refresh the page.';
                     valid = false;
@@ -388,7 +453,6 @@ document.addEventListener('DOMContentLoaded', function () {
             signupFormMessage.textContent = 'Unable to generate CSRF token. Please refresh the page.';
         });
     });
-
 
 //Setting page scripts
         // Search functionality
@@ -442,3 +506,176 @@ document.addEventListener('DOMContentLoaded', function () {
                 window.location.href = 'logout.php';
             }
         }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const amountInput = document.getElementById('amountInput');
+    const presetButtons = document.querySelectorAll('.preset-btn');
+    const loadButton = document.getElementById('loadBtn');
+    const fundingOptions = document.querySelectorAll('.funding-option');
+    const selectedSourceLabel = document.getElementById('selectedSourceLabel');
+
+    if (!amountInput || !loadButton || !presetButtons.length || !fundingOptions.length) {
+        return;
+    }
+
+    function getFundingLabel(option) {
+        const label = option ? option.querySelector('.funding-option-left span') : null;
+        return label ? label.textContent.trim() : 'Visa debit card';
+    }
+
+    function syncFundingSelection() {
+        fundingOptions.forEach(function (option) {
+            const input = option.querySelector('input[type="radio"]');
+            option.classList.toggle('is-selected', Boolean(input && input.checked));
+
+            if (input && input.checked && selectedSourceLabel) {
+                selectedSourceLabel.textContent = getFundingLabel(option);
+            }
+        });
+    }
+
+    presetButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            amountInput.value = button.dataset.amount || '';
+            amountInput.focus();
+
+            presetButtons.forEach(function (item) {
+                item.classList.remove('is-active');
+            });
+            button.classList.add('is-active');
+        });
+    });
+
+    amountInput.addEventListener('input', function () {
+        presetButtons.forEach(function (button) {
+            button.classList.toggle('is-active', button.dataset.amount === amountInput.value);
+        });
+    });
+
+    fundingOptions.forEach(function (option) {
+        option.addEventListener('click', syncFundingSelection);
+        const radio = option.querySelector('input[type="radio"]');
+        if (radio) {
+            radio.addEventListener('change', syncFundingSelection);
+        }
+    });
+
+    loadButton.addEventListener('click', function (event) {
+        const rawValue = amountInput.value.trim();
+        const amount = Number(rawValue);
+
+        if (!rawValue || Number.isNaN(amount) || amount <= 0) {
+            event.preventDefault();
+            alert('Please enter a valid amount to load.');
+            amountInput.focus();
+        }
+    });
+
+    syncFundingSelection();
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const totalBalanceValue = document.getElementById('totalBalanceValue');
+    const balanceToggleBtn = document.getElementById('balanceToggleBtn');
+
+    if (!totalBalanceValue || !balanceToggleBtn) {
+        return;
+    }
+
+    balanceToggleBtn.addEventListener('click', function () {
+        const isHidden = balanceToggleBtn.getAttribute('aria-pressed') === 'true';
+        const shouldHide = !isHidden;
+
+        totalBalanceValue.textContent = shouldHide
+            ? totalBalanceValue.dataset.hiddenBalance
+            : totalBalanceValue.dataset.visibleBalance;
+        balanceToggleBtn.setAttribute('aria-pressed', shouldHide ? 'true' : 'false');
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const recipientInput = document.getElementById('recipientInput');
+    const amountInput = document.getElementById('amountInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const summaryRecipient = document.getElementById('summaryRecipient');
+    const summaryAmount = document.getElementById('summaryAmount');
+    const sendMoneyForm = document.getElementById('sendMoneyForm');
+    const doneBtn = document.getElementById('doneBtn');
+    const balanceDisplay = document.getElementById('balanceDisplay');
+    const summaryBalanceAmount = document.getElementById('summaryBalanceAmount');
+    const toggleSummaryBalance = document.getElementById('toggleSummaryBalance');
+
+    if (!recipientInput || !amountInput || !searchBtn || !summaryRecipient || !summaryAmount || !sendMoneyForm || !doneBtn || !balanceDisplay || !summaryBalanceAmount || !toggleSummaryBalance) {
+        return;
+    }
+
+    function syncTransferSummary() {
+        summaryRecipient.textContent = recipientInput.value.trim();
+        summaryAmount.textContent = amountInput.value.trim() ? 'Rs ' + amountInput.value.trim() : '';
+    }
+
+    recipientInput.addEventListener('input', syncTransferSummary);
+    amountInput.addEventListener('input', syncTransferSummary);
+
+    searchBtn.addEventListener('click', function () {
+        recipientInput.focus();
+        syncTransferSummary();
+    });
+
+    sendMoneyForm.addEventListener('submit', function (event) {
+        const recipient = recipientInput.value.trim();
+        const amount = Number(amountInput.value.trim());
+        const availableBalance = Number(balanceDisplay.textContent.replace(/,/g, ''));
+        const currentUsername = (sendMoneyForm.dataset.currentUsername || '').trim().toLowerCase();
+
+        if (!recipient) {
+            event.preventDefault();
+            alert('Please enter a recipient.');
+            recipientInput.focus();
+            return;
+        }
+
+        if (!/^[A-Za-z0-9_]{3,30}$/.test(recipient)) {
+            event.preventDefault();
+            alert('Please enter a valid recipient username.');
+            recipientInput.focus();
+            return;
+        }
+
+        if (recipient.toLowerCase() === currentUsername) {
+            event.preventDefault();
+            alert('You cannot transfer money to your own account.');
+            recipientInput.focus();
+            return;
+        }
+
+        if (!amount || Number.isNaN(amount) || amount <= 0) {
+            event.preventDefault();
+            alert('Please enter a valid amount.');
+            amountInput.focus();
+            return;
+        }
+
+        if (amount > availableBalance) {
+            event.preventDefault();
+            alert('Insufficient balance for this transfer.');
+            amountInput.focus();
+            return;
+        }
+
+        summaryRecipient.textContent = recipient;
+        summaryAmount.textContent = 'Rs ' + amount.toFixed(2);
+    });
+
+    toggleSummaryBalance.addEventListener('click', function () {
+        const isHidden = toggleSummaryBalance.getAttribute('aria-pressed') === 'true';
+        const shouldHide = !isHidden;
+
+        summaryBalanceAmount.textContent = shouldHide
+            ? summaryBalanceAmount.dataset.hiddenBalance
+            : summaryBalanceAmount.dataset.visibleBalance;
+        toggleSummaryBalance.setAttribute('aria-pressed', shouldHide ? 'true' : 'false');
+    });
+
+    syncTransferSummary();
+});
