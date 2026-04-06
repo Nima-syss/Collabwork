@@ -44,7 +44,6 @@ body.dark-mode .sidebar {
 }
 
 body.dark-mode .topbar,
-body.dark-mode .budget-summary,
 body.dark-mode .card,
 body.dark-mode .budget-page,
 body.dark-mode .dashboard {
@@ -58,7 +57,7 @@ body.dark-mode .topbar {
 }
 
 body.dark-mode .add-budget-card {
-    background: #b7b7b7;
+    background: #465243;
 }
 
 body.dark-mode .logo,
@@ -83,9 +82,12 @@ body.dark-mode .dashboard-title {
 
 body.dark-mode .stat-label,
 body.dark-mode .stat-value,
-body.dark-mode .transaction-title,
-body.dark-mode .budget-title {
+body.dark-mode .transaction-title {
     color: #0b2a0b;
+}
+
+body.dark-mode .budget-title {
+    color: #f2f3ee;
 }
 
 body.dark-mode .sidebar .nav-link:hover,
@@ -114,6 +116,55 @@ body.dark-mode .topbar .icon-btn {
 
 body.dark-mode .topbar .icon-btn:hover {
     background: #eceee7;
+}
+
+body.dark-mode .budget-summary {
+    background: #d9d9d9;
+    color: #1f1f1f;
+}
+
+body.dark-mode .budget-card .stat-label {
+    color: #375632;
+}
+
+body.dark-mode .budget-card .stat-value {
+    color: #1f1f1f;
+}
+
+body.dark-mode .progress-wrap {
+    background: #f7f7f4;
+}
+
+body.dark-mode .progress-bar span {
+    background: #0f5a13;
+    box-shadow: inset 0 0 0 1px rgba(7, 40, 8, 0.22);
+}
+
+body.dark-mode .primary-btn {
+    background: #0e4d12;
+    color: #f5f6f1;
+}
+
+body.dark-mode .budget-panel {
+    background: #d9d9d9;
+}
+
+body.dark-mode .budget-breakdown-card h2,
+body.dark-mode .chart-placeholder {
+    color: #1f1f1f;
+}
+
+body.dark-mode .add-budget-title {
+    color: #f0f2ed;
+}
+
+body.dark-mode .add-budget-button {
+    background: #ecece8;
+}
+
+body.dark-mode .add-budget-card p {
+    border-top-color: #b8c2b2;
+    color: #eef2ea;
 }
 
 body.dark-mode .dashboard .stat-card {
@@ -352,11 +403,6 @@ body.dark-mode .settings .logout-btn {
     pointer-events: none;
 }
 
-.wallet-nav-icon-wrap {
-    width: 34px;
-    height: 34px;
-}
-
 .settings {
     margin-top: auto;
 }
@@ -535,7 +581,8 @@ body.dark-mode .settings .logout-btn {
 
 /* ===================== DASHBOARD & BUDGET ===================== */
 .dashboard,
-.budget-page {
+.budget-page,
+.wallet-page {
     padding: 40px;
     flex: 1;
     overflow-y: auto;
@@ -588,9 +635,10 @@ body.dark-mode .settings .logout-btn {
     object-fit: contain;
 }
 
-.wallet-nav-icon {
-    width: 34px !important;
-    height: 34px !important;
+.my-wallet-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
 }
 
 .stat-label {
@@ -612,6 +660,14 @@ body.dark-mode .settings .logout-btn {
     font-size: 12px;
     opacity: 0.7;
     cursor: pointer;
+}
+
+.balance-toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font: inherit;
 }
 
 .action-icon {
@@ -647,25 +703,27 @@ body.dark-mode .settings .logout-btn {
     border-radius: 50%;
 }
 
-.budget-page .dashboard-title {
-    margin-bottom: 16px;
+.budget-page .budget-title {
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 30px;
+    font-weight: 500;
+    color: #1e4526;
 }
 
 .budget-summary {
     display: grid;
-    gap: 14px;
-    grid-template-columns: repeat(3, minmax(160px, 1fr)) auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(140px, 0.7fr) auto;
     align-items: center;
-    padding: 16px;
+    gap: 28px;
+    padding: 16px 28px;
+    margin-bottom: 16px;
+    background: #d9d9d9;
     border-radius: 12px;
-    margin-bottom: 20px;
 }
 
 .budget-card {
-    background: #b7b7b7;
-    border-radius: 10px;
-    padding: 12px 14px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07);
+    min-width: 0;
 }
 
 .budget-card .stat-label,
@@ -674,46 +732,46 @@ body.dark-mode .settings .logout-btn {
 }
 
 .budget-card .stat-label {
-    font-size: 12px;
-    color: #5a5a5a;
     margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2f4e2d;
 }
 
 .budget-card .stat-value {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1b3f24;
+    font-size: 18px;
+    font-weight: 500;
+    color: #202020;
 }
 
 .used-card {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 6px;
-    min-width: 220px;
+    gap: 10px;
 }
 
 .progress-wrap {
-    background: #dee5da;
-    border-radius: 999px;
-    height: 10px;
     width: 100%;
+    max-width: 96px;
+    height: 16px;
     overflow: hidden;
+    background: #fbfbfb;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(32, 32, 32, 0.04);
 }
 
 .progress-bar {
     width: 100%;
-    background: #98bc8d;
     height: 100%;
-    border-radius: 999px;
-    position: relative;
 }
 
 .progress-bar span {
     display: block;
-    width: 50%;
+    width: 62%;
     height: 100%;
-    background-color: #3e8a51;
+    background: #74b777;
+    border-radius: 999px 0 0 999px;
+    box-shadow: inset 0 0 0 1px rgba(44, 94, 46, 0.18);
 }
 
 .budget-btn-wrap {
@@ -723,70 +781,97 @@ body.dark-mode .settings .logout-btn {
 
 .primary-btn {
     border: none;
-    background-color: #5a8554;
-    color: #fff;
-    font-weight: 600;
-    padding: 10px 18px;
+    background: #7f9e7b;
+    color: #f6f7f3;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 22px;
     border-radius: 10px;
     cursor: pointer;
 }
 
 .budget-content {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: minmax(0, 2.15fr) minmax(240px, 1fr);
     gap: 20px;
+    align-items: stretch;
 }
 
-.card {
+.budget-panel {
     background: #d9d9d9;
     border-radius: 12px;
-    padding: 18px;
-    min-height: 300px;
-    border: 2px solid #c5d2cd;
+}
+
+.budget-breakdown-card {
+    min-height: 485px;
+    padding: 16px 26px;
+}
+
+.budget-breakdown-card h2 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #242424;
 }
 
 .chart-placeholder {
-    background: #b7b7b7;
-    border: 2px dashed #b9c5bf;
-    height: 250px;
-    border-radius: 10px;
-    margin-top: 14px;
+    margin-top: 22px;
+    min-height: 385px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    color: #202020;
+    font-size: 16px;
+}
+
+.budget-side-panel {
+    min-height: 485px;
+    padding: 20px 16px;
 }
 
 .add-budget-card {
-    background: #d7e3d2;
-    position: relative;
+    background: #b8c9b2;
+    border-radius: 4px;
+    padding: 12px 16px 10px;
+}
+
+.add-budget-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 36px;
 }
 
 .add-budget-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #234626;
+    font-size: 18px;
+    font-weight: 500;
+    color: #1c2b1a;
 }
 
 .add-budget-button {
-    position: absolute;
-    right: 16px;
-    top: 16px;
-    background: #214a29;
-    color: #fff;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
+    width: 20px;
+    height: 18px;
+    border-radius: 4px;
+    background: #e8e8e8;
+    flex-shrink: 0;
     display: grid;
     place-items: center;
-    font-size: 18px;
-    font-weight: 700;
+    color: #1d1d1d;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
 }
 
 .add-budget-card p {
-    margin-top: 40px;
-    color: #466741;
+    padding-top: 8px;
+    border-top: 1px solid #567154;
+    color: #eef4ea;
+    font-size: 11px;
 }
 
 /* ===================== SETTINGS PAGE ===================== */
 .settings-page {
-    padding: 40px;
+    padding: 40px 40px 40px 56px;
     flex: 1;
     overflow-y: auto;
 }
@@ -1151,6 +1236,30 @@ body.dark-mode .settings .logout-btn {
     }
 }
 
+@media (max-width: 1100px) {
+    .budget-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .budget-btn-wrap {
+        justify-content: flex-start;
+    }
+
+    .budget-content {
+        grid-template-columns: 1fr;
+    }
+
+    .budget-breakdown-card,
+    .budget-side-panel {
+        min-height: auto;
+    }
+
+    .wallet-top-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
@@ -1189,12 +1298,37 @@ body.dark-mode .settings .logout-btn {
 
     .budget-summary {
         grid-template-columns: 1fr;
+        padding: 18px;
+        gap: 14px;
+    }
+
+    .budget-page .budget-title {
+        font-size: 26px;
+    }
+
+    .budget-breakdown-card {
+        padding: 18px;
+    }
+
+    .chart-placeholder {
+        min-height: 260px;
     }
 
     .dashboard,
     .budget-page,
+    .wallet-page,
     .settings-page {
         padding: 20px;
+    }
+
+    .wallet-actions-grid {
+        grid-template-columns: repeat(2, minmax(110px, 1fr));
+        gap: 16px;
+    }
+
+    .wallet-balance-card {
+        min-height: 220px;
+        padding: 22px 20px 18px;
     }
 
     .login-container,
