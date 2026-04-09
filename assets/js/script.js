@@ -49,6 +49,73 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+// Global topbar search (no dropdown: filters on Expenses page only)
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('globalSearchInput') || document.querySelector('.topbar .search-box input');
+    if (!input) return;
+
+    const path = String(window.location.pathname || '').replace(/\\/g, '/');
+    const isSearchPage =
+        /\/pages\/expenses\.php$/i.test(path) || /expenses\.php$/i.test(path) ||
+        /\/pages\/dashboard\.php$/i.test(path) || /dashboard\.php$/i.test(path) ||
+        /\/pages\/wallet\.php$/i.test(path) || /wallet\.php$/i.test(path) ||
+        /\/pages\/budget\.php$/i.test(path) || /budget\.php$/i.test(path);
+
+    function norm(s) {
+        return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    }
+
+    function matchesQuery(haystack, query) {
+        const q = norm(query);
+        if (!q) return true;
+        const text = norm(haystack);
+        if (!text) return false;
+        return q.split(' ').every(token => text.includes(token));
+    }
+
+    window.applyGlobalSearch = function (query) {
+        if (!isSearchPage) return;
+        const root = document.querySelector('.main-content') || document;
+        const items = root.querySelectorAll('[data-search-text]');
+        if (!items.length) return;
+
+        const q = norm(query);
+        items.forEach(el => {
+            const hay = (el.getAttribute('data-search-text') || '') + ' ' + (el.textContent || '');
+            el.classList.toggle('is-search-hidden', q ? !matchesQuery(hay, q) : false);
+        });
+    };
+
+    const stored = sessionStorage.getItem('global_search_query') || '';
+    if (stored) {
+        input.value = stored;
+        if (typeof window.applyGlobalSearch === 'function') window.applyGlobalSearch(stored);
+    }
+
+    input.addEventListener('input', function () {
+        const q = this.value || '';
+        sessionStorage.setItem('global_search_query', q);
+        if (typeof window.applyGlobalSearch === 'function') window.applyGlobalSearch(q);
+    });
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const q = input.value || '';
+            sessionStorage.setItem('global_search_query', q);
+            if (!isSearchPage && norm(q)) {
+                window.location.href = '../pages/expenses.php';
+            }
+        }
+
+        if (e.key === 'Escape') {
+            input.value = '';
+            sessionStorage.setItem('global_search_query', '');
+            if (typeof window.applyGlobalSearch === 'function') window.applyGlobalSearch('');
+        }
+    });
+});
+
 // Theme toggle script
 document.addEventListener('DOMContentLoaded', function () {
                 const themeSwitch = document.getElementById('themeSwitch');
@@ -575,21 +642,25 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    const totalBalanceValue = document.getElementById('totalBalanceValue');
-    const balanceToggleBtn = document.getElementById('balanceToggleBtn');
+    const pairs = [
+        { valueId: 'totalBalanceValue', btnId: 'balanceToggleBtn' },
+        { valueId: 'totalSpendingValue', btnId: 'spendingToggleBtn' },
+        { valueId: 'moneySavedValue', btnId: 'savedToggleBtn' },
+    ];
 
-    if (!totalBalanceValue || !balanceToggleBtn) {
-        return;
-    }
+    pairs.forEach(pair => {
+        const valueEl = document.getElementById(pair.valueId);
+        const btn = document.getElementById(pair.btnId);
+        if (!valueEl || !btn) return;
+        if (!valueEl.dataset || typeof valueEl.dataset.visibleBalance === 'undefined' || typeof valueEl.dataset.hiddenBalance === 'undefined') return;
 
-    balanceToggleBtn.addEventListener('click', function () {
-        const isHidden = balanceToggleBtn.getAttribute('aria-pressed') === 'true';
-        const shouldHide = !isHidden;
+        btn.addEventListener('click', function () {
+            const isHidden = btn.getAttribute('aria-pressed') === 'true';
+            const shouldHide = !isHidden;
 
-        totalBalanceValue.textContent = shouldHide
-            ? totalBalanceValue.dataset.hiddenBalance
-            : totalBalanceValue.dataset.visibleBalance;
-        balanceToggleBtn.setAttribute('aria-pressed', shouldHide ? 'true' : 'false');
+            valueEl.textContent = shouldHide ? valueEl.dataset.hiddenBalance : valueEl.dataset.visibleBalance;
+            btn.setAttribute('aria-pressed', shouldHide ? 'true' : 'false');
+        });
     });
 });
 
