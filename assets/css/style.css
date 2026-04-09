@@ -19,6 +19,10 @@ img {
     display: block;
 }
 
+.is-search-hidden {
+    display: none !important;
+}
+
 .form-error {
     color: #d9534f;
     font-size: 0.95rem;
@@ -84,6 +88,10 @@ body.dark-mode .stat-label,
 body.dark-mode .stat-value,
 body.dark-mode .transaction-title {
     color: #0b2a0b;
+}
+
+body.dark-mode .stat-negative {
+    color: #e55;
 }
 
 body.dark-mode .budget-title {
@@ -212,13 +220,13 @@ body.dark-mode .dashboard .stat-icon {
 }
 
 body.dark-mode .dashboard .transaction-section {
-    background: #465243;
+    background: #b7b7b7;
     border-radius: 14px;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
 }
 
 body.dark-mode .dashboard .transaction-title {
-    color: #f2f4ef;
+    color: #1f1f1f;
     font-size: 20px;
 }
 
@@ -227,6 +235,80 @@ body.dark-mode .dashboard .transaction-item {
     height: 36px;
     background: #e4efe2;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+/* Dashboard transaction list (dashboard.php) */
+.dashboard-transactions {
+    gap: 14px;
+}
+
+.dashboard-tx-empty {
+    padding: 18px 12px;
+    color: rgba(0, 0, 0, 0.65);
+    font-weight: 700;
+}
+
+.dashboard-tx-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-tx-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #0f5a13;
+    flex-shrink: 0;
+}
+
+.dashboard-tx-meta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dashboard-tx-desc {
+    font-size: 13px;
+    font-weight: 800;
+    color: #111;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dashboard-tx-date {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.60);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dashboard-tx-amount {
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.dashboard-tx-amount.in {
+    color: #0f5a13;
+}
+
+.dashboard-tx-amount.out {
+    color: #e55;
+}
+
+body.dark-mode .dashboard-tx-empty {
+    color: rgba(0, 0, 0, 0.65);
 }
 
 body.dark-mode .settings-page {
@@ -651,6 +733,10 @@ body.dark-mode .settings .logout-btn {
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 16px;
+}
+
+.stat-negative {
+    color: #e55;
 }
 
 .stat-action {
