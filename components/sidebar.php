@@ -32,9 +32,20 @@
                 <span>Budget</span>
             </a>
         </li>
+        <br>
+
+    <li class="nav-item">
+        <a href="chatbot.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'chatbot.php' ? 'active' : ''; ?>">
+                <div class="nav-icon"><img src="../assets/icons/dashboard.png" alt="Chatbot icon" /></div>
+            <span>AI Chatbot</span>
+        </a>
+    </li>
     </ul>
+
+    
 
     <div class="settings">
         <a class="logout-btn" href="logout.php">Log Out</a>
     </div>
 </aside>
+<script src="../assets/js/script.js"></script>
