@@ -31,3 +31,4 @@ $user_email = htmlspecialchars($_SESSION['user_email'] ?? '');
                     </a>
                 </div>
             </header>
+<script src="../assets/js/script.js"></script>
