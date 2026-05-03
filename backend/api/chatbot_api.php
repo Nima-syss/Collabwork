@@ -200,7 +200,7 @@ $stmt->execute();
 $stmt->close();
 
 // ---------------- OPENROUTER API ----------------
-$OPENROUTER_KEY = "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";
+$OPENROUTER_KEY = "given openrouter key here";
 
 $payload = json_encode([
     'model'      => 'openrouter/auto',
