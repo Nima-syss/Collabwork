@@ -59,7 +59,25 @@ $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-// ---------------- GET EXPENSES ----------------
+
+// ---------------- GET CURRENT MONTH EXPENSES ----------------
+$current_month_start = date('Y-m-01');
+$current_month_end   = date('Y-m-t');
+
+$stmt = $mysqli->prepare(
+    "SELECT category, SUM(amount) AS total
+     FROM expenses
+     WHERE user_id = ?
+     AND YEAR(expense_date) = YEAR(CURDATE())
+     AND MONTH(expense_date) = MONTH(CURDATE())
+     GROUP BY category"
+);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$expenses = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+// ---------------- GET ALL TIME EXPENSES ----------------
 $stmt = $mysqli->prepare(
     "SELECT category, SUM(amount) AS total
      FROM expenses
@@ -68,32 +86,36 @@ $stmt = $mysqli->prepare(
 );
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$expenses = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$all_expenses = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// ---------------- GET MONTHLY EXPENSES ----------------
+// ---------------- GET MONTHLY EXPENSES BREAKDOWN ----------------
 $stmt = $mysqli->prepare(
     "SELECT
         DATE_FORMAT(expense_date, '%M %Y') AS month_name,
+        DATE_FORMAT(expense_date, '%Y-%m') AS month_key,
         category,
         SUM(amount) AS total
      FROM expenses
      WHERE user_id = ?
-     GROUP BY month_name, category
-     ORDER BY expense_date DESC"
+     GROUP BY month_key, month_name, category
+     ORDER BY month_key DESC"
 );
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $monthly_expenses = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// ---------------- GET BUDGETS ----------------
+
+
+// ---------------- GET BUDGETS FOR CURRENT MONTH ----------------
 $stmt = $mysqli->prepare(
     "SELECT category, monthly_limit, used
      FROM budgets
-     WHERE user_id = ?"
+     WHERE user_id = ?
+     AND budget_month = ?"
 );
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("is", $user_id, $current_month_start);
 $stmt->execute();
 $budgets = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
@@ -127,45 +149,88 @@ $history = array_reverse(
 $stmt->close();
 
 // ---------------- BUILD AI CONTEXT ----------------
-$context  = "You are a friendly financial assistant for EWallet, a Nepali e-wallet app.\n";
-$context .= "Today's date: " . date('F j, Y') . "\n";
-$context .= "User Balance: NRP " . number_format($user['balance'] ?? 0, 2) . "\n\n";
+$current_month_label = date('F Y');       // May 2026
+$today_label         = date('l, F j, Y'); // Wednesday, May 6, 2026
 
-$context .= "Expenses by category (all time):\n";
-foreach ($expenses as $e) {
-    $context .= "- " . $e['category'] . ": NRP " . number_format($e['total'], 2) . "\n";
-}
+$context  = "You are a financial assistant for EWallet.\n";
+$context .= "Today: " . $today_label . "\n";
+$context .= "Current month: " . $current_month_label . "\n\n";
 
-$context .= "\nMonthly expense breakdown:\n";
-$current_month = '';
-foreach ($monthly_expenses as $me) {
-    if ($me['month_name'] !== $current_month) {
-        $current_month = $me['month_name'];
-        $context .= "\n" . $current_month . ":\n";
+$context .= "WALLET BALANCE: NRP " . number_format($user['balance'] ?? 0, 2) . "\n\n";
+
+// Current month expenses
+$month_total = 0;
+$context .= "EXPENSES THIS MONTH (" . $current_month_label . "):\n";
+if (empty($expenses)) {
+    $context .= "No expenses this month.\n";
+} else {
+    foreach ($expenses as $e) {
+        $context .= "- " . $e['category'] . ": NRP " . number_format($e['total'], 2) . "\n";
+        $month_total += (float)$e['total'];
     }
-    $context .= "- " . $me['category'] . ": NRP " . number_format($me['total'], 2) . "\n";
+}
+$context .= "TOTAL SPENT THIS MONTH: NRP " . number_format($month_total, 2) . "\n\n";
+
+// Budget for current month with exact numbers
+$total_budget = 0;
+$total_used   = 0;
+$context .= "BUDGET FOR " . strtoupper($current_month_label) . " (exact numbers from database):\n";
+if (empty($budgets)) {
+    $context .= "No budget set for this month.\n";
+} else {
+    foreach ($budgets as $b) {
+        $limit      = (float)$b['monthly_limit'];
+        $used       = (float)$b['used'];
+        $remaining  = $limit - $used;
+        $over       = $used - $limit;
+        $status     = $used >= $limit
+                        ? 'OVER LIMIT by NRP ' . number_format($over, 2)
+                        : 'ON TRACK';
+        $context .= "- " . $b['category'] . ":\n";
+        $context .= "  Limit: NRP " . number_format($limit, 2) . "\n";
+        $context .= "  Used: NRP "  . number_format($used, 2) . "\n";
+        $context .= "  Remaining: NRP " . number_format($remaining, 2) . "\n";
+        $context .= "  Status: " . $status . "\n";
+        $total_budget += $limit;
+        $total_used   += $used;
+    }
+    $total_remaining = $total_budget - $total_used;
+    $context .= "\nTOTAL BUDGET: NRP "    . number_format($total_budget, 2) . "\n";
+    $context .= "TOTAL USED: NRP "        . number_format($total_used, 2) . "\n";
+    $context .= "TOTAL REMAINING: NRP "   . number_format($total_remaining, 2) . "\n\n";
 }
 
-$context .= "\nBudget limits:\n";
-foreach ($budgets as $b) {
-    $remaining = $b['monthly_limit'] - $b['used'];
-    $context .= "- " . $b['category']
-             . ": Limit NRP " . number_format($b['monthly_limit'], 2)
-             . ", Used NRP "  . number_format($b['used'], 2)
-             . ", Remaining NRP " . number_format($remaining, 2) . "\n";
+// Monthly history
+$context .= "MONTHLY EXPENSE HISTORY:\n";
+$current_group = '';
+foreach ($monthly_expenses as $me) {
+    if ($me['month_name'] !== $current_group) {
+        $current_group = $me['month_name'];
+        $context .= "\n" . $current_group . ":\n";
+    }
+    $context .= "  - " . $me['category'] . ": NRP " . number_format($me['total'], 2) . "\n";
 }
 
-$context .= "\nRecent transactions:\n";
+// Recent transactions
+$context .= "\nRECENT TRANSACTIONS:\n";
 foreach ($transactions as $t) {
-    $context .= "- " . $t['type']
+    $context .= "- " . ucfirst($t['type'])
              . ": NRP " . number_format($t['amount'], 2)
-             . " on " . $t['created_at'] . "\n";
+             . " on " . date('M j, Y', strtotime($t['created_at'])) . "\n";
 }
 
-$context .= "\nInstructions: Reply in plain text only. ";
-$context .= "No markdown or special symbols. ";
-$context .= "Keep answers short, friendly and helpful. ";
-$context .= "Use the monthly breakdown to answer month-specific questions.";
+// Strict instructions
+$context .= "\n--- STRICT RULES ---\n";
+$context .= "1. Use ONLY the exact numbers above. Never calculate or estimate.\n";
+$context .= "2. For current month always use " . $current_month_label . " data above.\n";
+$context .= "3. Answer in 2-4 short sentences max.\n";
+$context .= "4. Always include exact NRP amounts.\n";
+$context .= "5. If budget is OVER LIMIT say exactly how much over.\n";
+$context .= "6. SAVINGS CALCULATION: Savings = TOTAL BUDGET - TOTAL SPENT.\n";
+$context .= "   - If result is POSITIVE: 'You saved NRP [amount] this month.'\n";
+$context .= "   - If result is ZERO or NEGATIVE: 'You did not save any money. You overspent by NRP [amount].'\n";
+$context .= "7. Plain text only. No markdown, no bullet points.\n";
+$context .= "8. Never make up numbers not in the data above.\n";
 
 // ---------------- BUILD MESSAGE ARRAY ----------------
 $messages = [];
@@ -200,7 +265,7 @@ $stmt->execute();
 $stmt->close();
 
 // ---------------- OPENROUTER API ----------------
-$OPENROUTER_KEY = "API KEY OF OPENROUTER";
+$OPENROUTER_KEY = "API-KEY-HERE"; 
 
 $payload = json_encode([
     'model'      => 'openrouter/auto',
@@ -236,7 +301,6 @@ $data  = json_decode($response, true);
 $reply = $data['choices'][0]['message']['content']
          ?? 'Sorry, no response received. Please try again.';
 
-// ---------------- FINAL FALLBACK ----------------
 $reply = $reply ?? 'Sorry, I could not get a response right now. Please try again.';
 
 // ---------------- SAVE BOT REPLY ----------------
