@@ -1,10 +1,10 @@
 <?php
-// connection.php
-// Update these values if your XAMPP/MySQL settings are different.
-$host = 'localhost';
-$user = 'root';
-$password = '';
-$database = 'ewallet';
+require_once __DIR__ . '/env.php';
+
+$host     = $_ENV['DB_HOST']     ?? 'localhost';
+$user     = $_ENV['DB_USER']     ?? 'root';
+$password = $_ENV['DB_PASSWORD'] ?? '';
+$database = $_ENV['DB_NAME']     ?? 'ewallet';
 
 $mysqli = new mysqli($host, $user, $password, $database);
 if ($mysqli->connect_error) {
