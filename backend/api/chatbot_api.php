@@ -231,6 +231,8 @@ $context .= "   - If result is POSITIVE: 'You saved NRP [amount] this month.'\n"
 $context .= "   - If result is ZERO or NEGATIVE: 'You did not save any money. You overspent by NRP [amount].'\n";
 $context .= "7. Plain text only. No markdown, no bullet points.\n";
 $context .= "8. Never make up numbers not in the data above.\n";
+$context .= "9. 'Unbudgeted' means expenses with no budget category assigned. Treat it like any other category when reporting spending.\n";
+$context .= "10. If user asks about unbudgeted spending, report the exact NRP amount from the Unbudgeted category in expenses data.\n";
 
 // ---------------- BUILD MESSAGE ARRAY ----------------
 $messages = [];
@@ -265,7 +267,12 @@ $stmt->execute();
 $stmt->close();
 
 // ---------------- OPENROUTER API ----------------
-$OPENROUTER_KEY = "API-KEY-HERE"; 
+$OPENROUTER_KEY = $_ENV['OPENROUTER_API_KEY'] ?? '';
+
+if (empty($OPENROUTER_KEY)) {
+    echo json_encode(['reply' => 'API key not configured.']);
+    exit;
+}
 
 $payload = json_encode([
     'model'      => 'openrouter/auto',
