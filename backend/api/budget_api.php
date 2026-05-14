@@ -58,6 +58,14 @@ if ($method === 'POST') {
     $month    = parseMonth($body['month'] ?? date('Y-m'));
 
     if (!in_array($category, VALID_CATEGORIES, true)) { http_response_code(400); echo json_encode(['error' => 'Invalid category.']); exit; }
+    if ($category === 'Unbudgeted') {
+        if ($limit !== false && $limit > 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Unbudgeted has no monthly limit. Spending is tracked only.']);
+            exit;
+        }
+        $limit = 0.0;
+    }
     if ($limit === false || $limit < 0 || $used === false || $used < 0) { http_response_code(400); echo json_encode(['error' => 'Limit and used must be non-negative numbers.']); exit; }
     if (!$month) { http_response_code(400); echo json_encode(['error' => 'Invalid month format. Use YYYY-MM.']); exit; }
 

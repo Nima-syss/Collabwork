@@ -28,8 +28,8 @@ if (!$user) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $amount = filter_input(INPUT_POST, 'amount', FILTER_VALIDATE_FLOAT);
-    $funding_source = $_POST['fundingSource'] ?? 'visa';
-    $allowed_sources = ['visa', 'bank'];
+    $funding_source = $_POST['fundingSource'] ?? 'bank';
+    $allowed_sources = ['bank', 'visa', 'credit'];
 
     if ($amount === false || $amount === null || $amount <= 0) {
         $load_error = 'Please enter a valid amount.';
@@ -48,7 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($affected !== 1) {
             $load_error = 'Balance limit exceeded. Please enter a smaller amount.';
         } else {
-        $description = 'Loaded money via ' . ($funding_source === 'bank' ? 'Bank' : 'Visa debit card');
+        $source_labels = [
+            'bank'    => 'Bank transfer',
+            'visa'    => 'Debit card',
+            'credit'  => 'Credit card',
+        ];
+        $description = 'Loaded money via ' . ($source_labels[$funding_source] ?? $funding_source);
         $transaction_stmt = $mysqli->prepare('INSERT INTO transactions (user_id, related_user_id, type, amount, description) VALUES (?, NULL, ?, ?, ?)');
         $type = 'load';
         $transaction_stmt->bind_param('isds', $user_id, $type, $amount, $description);
@@ -69,6 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $user_name = htmlspecialchars($user['fullname'] ?? ($_SESSION['user_name'] ?? 'User'));
 $user_email = htmlspecialchars($user['email'] ?? ($_SESSION['user_email'] ?? ''));
-$selected_funding_source = $_POST['fundingSource'] ?? ($_SESSION['last_funding_source'] ?? 'visa');
-$selected_funding_label = $selected_funding_source === 'bank' ? 'Bank' : 'Visa debit card';
+$selected_funding_source = $_POST['fundingSource'] ?? ($_SESSION['last_funding_source'] ?? 'bank');
+$selected_funding_labels = [
+    'bank'   => 'Bank transfer',
+    'visa'   => 'Debit card',
+    'credit' => 'Credit card',
+];
+$selected_funding_label = $selected_funding_labels[$selected_funding_source] ?? 'Bank transfer';
 $current_amount = isset($_POST['amount']) ? htmlspecialchars((string) $_POST['amount']) : '';

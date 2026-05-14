@@ -217,29 +217,24 @@ if ($method === 'POST') {
         $budget_stmt->close();
 
         // ─────────────────────────────────────────────────────────────
-        // CHECK IF ANY BUDGET EXISTS THIS MONTH
+        // CHECK IF ANY CATEGORY BUDGET EXISTS THIS MONTH (Unbudgeted excluded)
         // ─────────────────────────────────────────────────────────────
 
-        $month_stmt = $mysqli->prepare(
-            'SELECT COUNT(*) as total
+        // Count real category budgets only (Unbudgeted is unlimited — does not satisfy "set a budget")
+        $real_stmt = $mysqli->prepare(
+            'SELECT COUNT(*) AS total
              FROM budgets
              WHERE user_id = ?
-             AND budget_month = ?'
+             AND budget_month = ?
+             AND category <> ?'
         );
+        $unb = 'Unbudgeted';
+        $real_stmt->bind_param('iss', $user_id, $expense_month, $unb);
+        $real_stmt->execute();
+        $real_row = $real_stmt->get_result()->fetch_assoc();
+        $real_stmt->close();
 
-        $month_stmt->bind_param(
-            'is',
-            $user_id,
-            $expense_month
-        );
-
-        $month_stmt->execute();
-
-        $month_row = $month_stmt->get_result()->fetch_assoc();
-
-        $month_stmt->close();
-
-        $has_budget = (int)$month_row['total'] > 0;
+        $has_budget = (int)($real_row['total'] ?? 0) > 0;
 
         // ─────────────────────────────────────────────────────────────
         // SOFT WARNING IF NO BUDGET
@@ -247,7 +242,7 @@ if ($method === 'POST') {
 
         $force_no_budget = !empty($body['force_no_budget']);
 
-        if (!$has_budget && !$force_no_budget) {
+        if (!$has_budget && !$force_no_budget && $v['category'] !== 'Unbudgeted') {
 
             $mysqli->rollback();
 
@@ -256,7 +251,8 @@ if ($method === 'POST') {
             echo json_encode([
                 'warning' => true,
                 'no_budget_warning' => true,
-                'error' => 'No budget found for this month. Continue anyway?'
+                'month' => date('F Y', strtotime($expense_month)),
+                'error' => 'No category budget set for this month. Continue anyway?'
             ]);
 
             exit;
@@ -276,7 +272,11 @@ if ($method === 'POST') {
 
             $new_used = $used + $v['amount'];
 
+            // Unbudgeted category: monthly_limit stays 0 = no cap (track spending only)
+            $is_unbudgeted_cat = ($v['category'] === 'Unbudgeted');
+
             if (
+                !$is_unbudgeted_cat &&
                 $limit > 0 &&
                 $new_used > $limit &&
                 !$force_over_budget
@@ -328,7 +328,7 @@ if ($method === 'POST') {
             http_response_code(400);
 
             echo json_encode([
-                'error' => 'Insufficient balance.'
+                'error' => 'Insufficient balance. Load money from your bank or card, or reduce the amount.'
             ]);
 
             exit;
@@ -614,7 +614,7 @@ if ($method === 'PUT') {
                 http_response_code(400);
 
                 echo json_encode([
-                    'error' => 'Insufficient balance for this expense update.'
+                    'error' => 'Insufficient balance for this expense update. Load money or lower the amount.'
                 ]);
 
                 exit;
@@ -674,16 +674,42 @@ if ($method === 'PUT') {
             exit;
         }
 
+        if (!$brow2 && $target_category === 'Unbudgeted') {
+
+            $mk_unb = $mysqli->prepare(
+                'INSERT INTO budgets (user_id, category, monthly_limit, used, budget_month)
+                 VALUES (?, ?, 0, 0, ?)'
+            );
+            $unb_cat = 'Unbudgeted';
+            $mk_unb->bind_param('iss', $user_id, $unb_cat, $new_expense_month);
+            $mk_unb->execute();
+            $mk_unb->close();
+
+            $bchk2 = $mysqli->prepare(
+                'SELECT monthly_limit, used
+                 FROM budgets
+                 WHERE user_id = ?
+                 AND category = ?
+                 AND budget_month = ?'
+            );
+            $bchk2->bind_param('iss', $user_id, $target_category, $new_expense_month);
+            $bchk2->execute();
+            $brow2 = $bchk2->get_result()->fetch_assoc();
+            $bchk2->close();
+        }
+
         $force = !empty($body['force_over_budget']);
 
-        $limit2 = (float)$brow2['monthly_limit'];
+        $limit2 = (float)($brow2['monthly_limit'] ?? 0);
 
-        $current_used2 = (float)$brow2['used'];
+        $current_used2 = (float)($brow2['used'] ?? 0);
 
         // projected budget usage
         $projected = $current_used2 - $old_amount + $v['amount'];
 
-        if ($limit2 > 0 && $projected > $limit2 && !$force) {
+        $is_unbudgeted_put = ($target_category === 'Unbudgeted');
+
+        if (!$is_unbudgeted_put && $limit2 > 0 && $projected > $limit2 && !$force) {
 
             $mysqli->rollback();
 
@@ -752,7 +778,7 @@ if ($method === 'PUT') {
                 'iss',
                 $user_id,
                 $old['category'],
-                $del_expense_month
+                $old_expense_month
             );
 
             $check_budget->execute();
@@ -780,7 +806,7 @@ if ($method === 'PUT') {
                 $old_amount,
                 $user_id,
                 $budget_category,
-                $del_expense_month
+                $old_expense_month
             );
 
             $upd->execute();
