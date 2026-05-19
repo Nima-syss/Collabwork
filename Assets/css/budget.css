@@ -1,0 +1,674 @@
+/* assets/css/budget.css — scoped to .budget-page; summary strip matches wallet balance card colors. */
+
+/* ── Page chrome (title = wallet-title; summary = wallet-balance-card) ─── */
+.budget-page .budget-title,
+.budget-page .dashboard-title.budget-title {
+  font-family: var(--font-display), "Sora", sans-serif;
+  font-size: clamp(26px, 2.6vw, 32px);
+  font-weight: 800;
+  color: var(--green-darkest);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  text-align: left;
+  margin-bottom: 18px;
+}
+
+/* Same treatment as .wallet-balance-card (.main-content fallback if .budget-page missing) */
+.budget-page .budget-summary,
+.main-content .budget-summary {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--green-dark), var(--green-mid)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 28px rgba(27, 63, 36, 0.22) !important;
+  color: var(--white);
+}
+
+.budget-page .budget-summary .budget-card .stat-label,
+.main-content .budget-summary .budget-card .stat-label {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88) !important;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.budget-page .budget-summary .budget-card .stat-value,
+.main-content .budget-summary .budget-card .stat-value {
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 800;
+  color: var(--white) !important;
+  letter-spacing: -0.02em;
+}
+
+.budget-page .progress-wrap,
+.main-content .budget-summary .progress-wrap {
+  max-width: 120px;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.budget-page .progress-bar span,
+.main-content .budget-summary .progress-bar span {
+  width: 62%;
+  background: linear-gradient(90deg, var(--green-accent), var(--green-light));
+  box-shadow: inset 0 0 0 1px rgba(27, 63, 36, 0.1);
+}
+
+.budget-page .primary-btn,
+.main-content .budget-page .primary-btn {
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  padding: 11px 22px;
+  box-shadow: 0 4px 16px rgba(27, 63, 36, 0.22);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.budget-page .primary-btn:hover,
+.main-content .budget-page .primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(27, 63, 36, 0.28);
+}
+
+/* Inverted CTA on green hero (like a light chip on the wallet card) */
+.budget-page .budget-summary .primary-btn,
+.main-content .budget-summary .primary-btn {
+  background: var(--white) !important;
+  color: var(--green-dark) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18) !important;
+}
+
+.budget-page .budget-summary .primary-btn:hover,
+.main-content .budget-summary .primary-btn:hover {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24) !important;
+}
+
+/* Same shell as .wallet-panel */
+.budget-page .budget-panel {
+  background: var(--white);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+}
+
+.budget-page .budget-panel::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--green-accent), var(--green-mid));
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.budget-page .budget-breakdown-card h2 {
+  font-family: var(--font-display), "Sora", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--green-darkest);
+  letter-spacing: -0.02em;
+}
+
+.budget-page .budget-breakdown-card {
+  padding: 22px 24px;
+}
+
+.budget-page .budget-chart-card {
+  padding: 22px 24px;
+}
+
+/* ── Breakdown header & list ───────────────────────────────────────────── */
+.budget-breakdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.budget-add-top {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green-dark);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.budget-add-top:hover {
+  background: rgba(64, 192, 116, 0.12);
+  color: var(--green-darkest);
+}
+
+.budget-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.budget-item {
+  background: var(--green-lightest);
+  border: 1px solid rgba(27, 63, 36, 0.08);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  transition: background 0.15s ease;
+}
+
+.budget-item:hover {
+  background: rgba(64, 192, 116, 0.06);
+}
+
+.budget-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.budget-item-left {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.budget-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.budget-status {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.budget-item-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.budget-amount {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--green-darkest);
+  white-space: nowrap;
+}
+
+.budget-amount small {
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.budget-edit-btn {
+  border: 1px solid var(--card-border);
+  background: var(--white);
+  color: var(--green-dark);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.budget-edit-btn:hover {
+  background: rgba(62, 138, 81, 0.1);
+  border-color: rgba(62, 138, 81, 0.35);
+  color: #1f6b34;
+}
+
+.budget-item-bottom {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.budget-progress {
+  width: 100%;
+  height: 10px;
+  background: rgba(27, 63, 36, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.budget-progress span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.budget-mini-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+/* ── Chart panel (wallet-style white panel + mint chart well) ──────────── */
+.budget-chart-title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: var(--font-display), "Sora", sans-serif;
+  color: var(--green-darkest);
+  letter-spacing: -0.02em;
+}
+
+.budget-chart-wrap {
+  display: grid;
+  place-items: center;
+  background: var(--green-lightest);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(27, 63, 36, 0.1);
+  padding: 12px;
+}
+
+.budget-legend {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.budget-legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--green-lightest);
+  border: 1px solid rgba(27, 63, 36, 0.06);
+}
+
+.budget-legend-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.budget-legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.budget-legend-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--green-darkest);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.budget-legend-value {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── Modal ─────────────────────────────────────────────────────────────── */
+.budget-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 18px;
+}
+
+.budget-modal-overlay[hidden] {
+  display: none;
+}
+
+.budget-modal {
+  width: 100%;
+  max-width: 520px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 18px 60px rgba(27, 63, 36, 0.18);
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+}
+
+.budget-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 0;
+}
+
+.budget-modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  font-family: var(--font-display), "Sora", sans-serif;
+  color: var(--green-darkest);
+  letter-spacing: -0.02em;
+}
+
+.budget-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.budget-modal-close:hover {
+  color: var(--green-darkest);
+}
+
+.budget-modal-form {
+  padding: 14px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.budget-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.budget-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--green-dark);
+}
+
+.budget-field select,
+.budget-field input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(27, 63, 36, 0.14);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  background: var(--card-bg);
+  color: var(--text-dark);
+  outline: none;
+}
+
+.budget-field select:focus,
+.budget-field input:focus {
+  border-color: rgba(62, 138, 81, 0.55);
+  background: var(--white);
+}
+
+.budget-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.budget-modal-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.budget-btn {
+  border: 1px solid var(--card-border);
+  background: var(--green-lightest);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--green-dark);
+}
+
+.budget-btn.primary {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+  border: none;
+  color: var(--white);
+  box-shadow: 0 4px 16px rgba(27, 63, 36, 0.22);
+}
+
+.budget-btn.primary:hover {
+  box-shadow: 0 8px 22px rgba(27, 63, 36, 0.28);
+}
+
+.budget-btn.ghost {
+  background: var(--white);
+  color: var(--text-body);
+}
+
+.budget-btn.secondary {
+  background: #fff5f5;
+  border-color: #ffd0d0;
+  color: #e55;
+}
+
+.budget-btn:hover {
+  opacity: 0.94;
+}
+
+/* ── Month navigator ───────────────────────────────────────────────────── */
+.budget-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* Month controls — same feel as .wallet-action-card (white tiles, green type) */
+.month-nav-btn {
+  background: var(--white);
+  color: var(--green-dark);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.month-nav-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(27, 63, 36, 0.12);
+}
+
+.month-nav-btn:disabled {
+  background: var(--card-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--card-border);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.month-nav-label {
+  font-size: 17px;
+  font-weight: 800;
+  font-family: var(--font-display), "Sora", sans-serif;
+  color: var(--green-darkest);
+  min-width: 160px;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+
+/* ── Dark mode: wallet-style gradient summary + panels ─────────────────── */
+body.dark-mode:not(.landing-body) .budget-page .budget-summary,
+body.dark-mode:not(.landing-body) .main-content .budget-summary {
+  background: linear-gradient(135deg, #0f2818, #1b3f24) !important;
+  border-color: rgba(64, 192, 116, 0.2) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35) !important;
+  color: var(--dm-text, #e8f4ec) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-summary .budget-card .stat-label,
+body.dark-mode:not(.landing-body) .main-content .budget-summary .budget-card .stat-label {
+  color: rgba(232, 244, 236, 0.88) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-summary .budget-card .stat-value,
+body.dark-mode:not(.landing-body) .main-content .budget-summary .budget-card .stat-value {
+  color: var(--dm-text, #e8f4ec) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-summary .primary-btn,
+body.dark-mode:not(.landing-body) .main-content .budget-summary .primary-btn {
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: var(--green-darkest) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .progress-wrap,
+body.dark-mode:not(.landing-body) .main-content .budget-summary .progress-wrap {
+  background: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-add-top {
+  color: var(--dm-muted, #8aad9a) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-add-top:hover {
+  color: var(--dm-text, #e8f4ec) !important;
+  background: rgba(64, 192, 116, 0.12) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-modal-title,
+body.dark-mode:not(.landing-body) .budget-page .budget-chart-title {
+  color: var(--dm-text, #e8f4ec) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-item {
+  background: rgba(17, 28, 24, 0.65);
+  border-color: rgba(64, 192, 116, 0.1);
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-item:hover {
+  background: rgba(64, 192, 116, 0.08);
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-status,
+body.dark-mode:not(.landing-body) .budget-page .budget-amount small,
+body.dark-mode:not(.landing-body) .budget-page .budget-legend-value {
+  color: var(--dm-muted, #8aad9a) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-amount,
+body.dark-mode:not(.landing-body) .budget-page .budget-legend-name {
+  color: var(--dm-text, #e8f4ec) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-edit-btn {
+  background: var(--dm-elevated, #111c18) !important;
+  border-color: var(--dm-border, rgba(64, 192, 116, 0.14)) !important;
+  color: var(--dm-text, #e8f4ec) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-edit-btn:hover {
+  background: rgba(64, 192, 116, 0.12) !important;
+  border-color: rgba(64, 192, 116, 0.35) !important;
+  color: var(--dm-accent, #40c074) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-progress {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-chart-wrap {
+  background: var(--dm-elevated, #111c18) !important;
+  border-color: var(--dm-border, rgba(64, 192, 116, 0.14)) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-legend-item {
+  background: var(--dm-elevated, #111c18) !important;
+  border-color: rgba(64, 192, 116, 0.1) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-modal {
+  background: var(--dm-surface, #16261f) !important;
+  border-color: var(--dm-border, rgba(64, 192, 116, 0.14)) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-modal-close {
+  color: var(--dm-muted, #8aad9a) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-modal-close:hover {
+  color: var(--dm-text, #e8f4ec) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-label {
+  color: var(--dm-muted, #8aad9a) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-field select,
+body.dark-mode:not(.landing-body) .budget-page .budget-field input {
+  background: var(--dm-elevated, #111c18) !important;
+  color: var(--dm-text, #e8f4ec) !important;
+  border-color: var(--dm-border, rgba(64, 192, 116, 0.14)) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-btn {
+  background: var(--dm-elevated, #111c18) !important;
+  color: var(--dm-text, #e8f4ec) !important;
+  border-color: var(--dm-border, rgba(64, 192, 116, 0.14)) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-btn.ghost {
+  background: transparent !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .budget-btn.primary {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-mid)) !important;
+  color: var(--white) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .month-nav-btn:disabled {
+  background: var(--dm-elevated, #111c18) !important;
+  color: var(--dm-muted, #8aad9a) !important;
+  border: 1px solid var(--dm-border, rgba(64, 192, 116, 0.14)) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .month-nav-label {
+  color: var(--dm-text, #e8f4ec) !important;
+}
+
+body.dark-mode:not(.landing-body) .budget-page .month-nav-btn:not(:disabled) {
+  background: var(--dm-elevated, #111c18) !important;
+  color: var(--dm-text, #e8f4ec) !important;
+  border: 1px solid var(--dm-border, rgba(64, 192, 116, 0.14)) !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2) !important;
+}
