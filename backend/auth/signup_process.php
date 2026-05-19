@@ -52,8 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirectToSignup('confirm', 'Passwords do not match.', $fullname, $username, $email);
     }
 
-    if (strlen($password) < 4) {
-        redirectToSignup('password', 'Password must be at least 4 characters long.', $fullname, $username, $email);
+    if (strlen($password) < 8) {
+        redirectToSignup('password', 'Password must be at least 8 characters long.', $fullname, $username, $email);
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        redirectToSignup('password', 'Password must contain at least one uppercase letter.', $fullname, $username, $email);
+    }
+    if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+        redirectToSignup('password', 'Password must contain at least one special character (e.g. !@#$%).', $fullname, $username, $email);
     }
 
     $stmt = $mysqli->prepare('SELECT id FROM users WHERE email = ?');

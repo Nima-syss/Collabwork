@@ -54,6 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'credit'  => 'Credit card',
         ];
         $description = 'Loaded money via ' . ($source_labels[$funding_source] ?? $funding_source);
+        require_once __DIR__ . '/../notifications_helper.php';
+        create_notification($mysqli, $user_id, 'money_loaded',
+            'Money loaded',
+            'NRP ' . number_format($amount, 2) . ' added via ' . ($source_labels[$funding_source] ?? $funding_source) . '.',
+            $amount
+        );
+
         $transaction_stmt = $mysqli->prepare('INSERT INTO transactions (user_id, related_user_id, type, amount, description) VALUES (?, NULL, ?, ?, ?)');
         $type = 'load';
         $transaction_stmt->bind_param('isds', $user_id, $type, $amount, $description);
@@ -66,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['last_funding_source'] = $funding_source;
         $_SESSION['last_loaded_amount'] = $amount;
 
-        header('Location: dashboard.php');
+        header('Location: ../pages/wallet.php?message=' . rawurlencode('Transfer completed successfully.') . '&type=success');
         exit;
         }
     }

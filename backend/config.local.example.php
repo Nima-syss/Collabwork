@@ -6,5 +6,5 @@
  * Get a key: https://openrouter.ai/keys
  */
 return [
-    'openrouter_api_key' => 'sk-or-v1-paste-your-key-here',
+    'openrouter_api_key' => 'sk-or-v1-example',
 ];

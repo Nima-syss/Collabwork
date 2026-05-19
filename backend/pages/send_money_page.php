@@ -100,11 +100,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $mysqli->commit();
 
+                    require_once __DIR__ . '/../notifications_helper.php';
+                    create_notification($mysqli, $user_id, 'money_sent',
+                        'Money sent',
+                        'NRP ' . number_format($amount, 2) . ' sent to ' . htmlspecialchars($recipient['fullname']) . ' (@' . $recipient_username . ').',
+                        $amount
+                    );
+                    create_notification($mysqli, $recipient_id, 'money_received',
+                        'Money received',
+                        'NRP ' . number_format($amount, 2) . ' received from ' . htmlspecialchars($current_user['fullname']) . ' (@' . $current_user['username'] . ').',
+                        $amount
+                    );
+
                     $current_user['balance'] -= $amount;
                     $_SESSION['total_balance'] = (float) $current_user['balance'];
-                    $send_success = 'Transfer completed successfully.';
-                    $recipient_username_value = $recipient_username;
-                    $amount_value = number_format($amount, 2, '.', '');
+                    header('Location: ../pages/wallet.php?message=' . rawurlencode('Transfer completed successfully.') . '&type=success');
+                    exit;
                     }
                 }
             } catch (Throwable $e) {

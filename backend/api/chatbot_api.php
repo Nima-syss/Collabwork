@@ -379,7 +379,12 @@ if (!function_exists('curl_init')) {
 }
 
 $payload = json_encode([
-    'model'      => 'openrouter/auto',
+    'models' => [
+        'openai/gpt-4o-mini',
+        'meta-llama/llama-3.1-8b-instruct:free',
+        'mistralai/mistral-7b-instruct:free',
+    ],
+    'route'      => 'fallback',
     'messages'   => $messages,
     'max_tokens' => 300
 ]);

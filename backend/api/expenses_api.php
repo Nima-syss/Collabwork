@@ -19,6 +19,23 @@ require_once __DIR__ . '/../connection.php';
 $user_id = (int) $_SESSION['user_id'];
 $method  = $_SERVER['REQUEST_METHOD'];
 
+function loadNotificationSettings(mysqli $mysqli, int $user_id): array {
+    $stmt = $mysqli->prepare(
+        'SELECT notif_push, notif_expense FROM user_settings WHERE user_id = ?'
+    );
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    return [
+        'notif_push'    => isset($row['notif_push']) ? (bool)$row['notif_push'] : false,
+        'notif_expense' => isset($row['notif_expense']) ? (bool)$row['notif_expense'] : false,
+    ];
+}
+
+$notificationSettings = loadNotificationSettings($mysqli, $user_id);
+
 // ── Allowed categories — must match budgets ENUM exactly ─────────────────
 const VALID_CATEGORIES = [
     'Foods',
@@ -161,6 +178,10 @@ function validateInput(array $body, bool $requireId = false): array {
     if (!in_array($category, VALID_CATEGORIES, true)) $errors[] = 'Invalid category.';
     if ($amount === false || $amount <= 0)            $errors[] = 'A positive amount is required.';
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) $date = date('Y-m-d');
+
+    if ($date > date('Y-m-d')) {
+        $errors[] = 'Future dates are not allowed. You can only record expenses for today or past dates.';
+    }
 
     return [
         'errors'   => $errors,
@@ -506,6 +527,40 @@ if ($method === 'POST') {
 
         $mysqli->commit();
 
+        // ── Notifications ───────────────────────────────────────────────
+        require_once __DIR__ . '/../notifications_helper.php';
+
+        $tracked_cat = $cat_row ? $v['category'] : 'Unbudgeted';
+        $pushMessage = 'NRP ' . number_format($v['amount'], 2) . ' logged under ' . $tracked_cat . ($v['note'] ? ' — ' . $v['note'] : '') . '.';
+
+        if ($notificationSettings['notif_expense']) {
+            create_notification($mysqli, $user_id, 'expense_added',
+                'Expense recorded',
+                $pushMessage,
+                $v['amount']
+            );
+
+            // Warn if this expense pushed budget usage over 80% or over 100%
+            if ($cat_row && (float)$cat_row['monthly_limit'] > 0) {
+                $new_used  = (float)$cat_row['used'] + $v['amount'];
+                $limit     = (float)$cat_row['monthly_limit'];
+                $pct       = $new_used / $limit;
+                if ($pct >= 1.0) {
+                    create_notification($mysqli, $user_id, 'budget_exceeded',
+                        'Budget exceeded — ' . $v['category'],
+                        'You are NRP ' . number_format($new_used - $limit, 2) . ' over your NRP ' . number_format($limit, 2) . ' ' . $v['category'] . ' budget.',
+                        $new_used - $limit
+                    );
+                } elseif ($pct >= 0.8) {
+                    create_notification($mysqli, $user_id, 'budget_warning',
+                        'Budget almost full — ' . $v['category'],
+                        'You\'ve used ' . round($pct * 100) . '% of your NRP ' . number_format($limit, 2) . ' ' . $v['category'] . ' budget.',
+                        null
+                    );
+                }
+            }
+        }
+
         // refresh session balance
 
         $bal_stmt = $mysqli->prepare(
@@ -525,14 +580,19 @@ if ($method === 'POST') {
         $_SESSION['total_balance'] =
             (float)($bal['balance'] ?? 0);
 
-        echo json_encode([
+        $response = [
             'success' => true,
             'id' => $expense_id,
             'balance' => (float)($bal['balance'] ?? 0),
-            'tracked_as' => $cat_row
-                ? $v['category']
-                : 'Unbudgeted'
-        ]);
+            'tracked_as' => $cat_row ? $v['category'] : 'Unbudgeted',
+        ];
+
+        if ($notificationSettings['notif_expense'] && $notificationSettings['notif_push']) {
+            $response['show_push_notification'] = true;
+            $response['push_message'] = 'Expense recorded: ' . $pushMessage;
+        }
+
+        echo json_encode($response);
 
     } catch (Throwable $e) {
 
