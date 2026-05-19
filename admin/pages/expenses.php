@@ -28,7 +28,17 @@ $exps = $mysqli->query(
      $wClause ORDER BY e.expense_date DESC, e.id DESC LIMIT $per OFFSET $offset"
 )->fetch_all(MYSQLI_ASSOC);
 
-$categories = ['Foods','Transportation','Housing','Shopping','Health and Wellness','Education','Entertainment','Others'];
+$categories = [
+    'Foods',
+    'Transportation',
+    'Housing',
+    'Shopping',
+    'Health and Wellness',
+    'Education',
+    'Entertainment',
+    'Others',
+    'Unbudgeted'
+];
 
 // Summary by category
 $cat_summary = $mysqli->query(
@@ -40,9 +50,14 @@ $cat_summary = $mysqli->query(
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Expenses – Admin</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <link rel="stylesheet" href="../../assets/css/expenses.css">
-    <link rel="stylesheet" href="../admin.css">
+    <?php
+    $themeCssDir = '../../assets/css/';
+    $themeExtraLinks = [
+        $themeCssDir . 'expenses.css',
+        '../admin.css',
+    ];
+    include __DIR__ . '/../../components/head_theme.php';
+    ?>
 </head>
 <body>
 <div class="container">
@@ -109,6 +124,6 @@ $cat_summary = $mysqli->query(
         </div>
     </div>
 </div>
-<script src="../../assets/js/script.js"></script>
+<?php $ewScriptHref = '../../assets/js/script.js'; include __DIR__ . '/../../components/script_main.php'; ?>
 </body>
 </html>

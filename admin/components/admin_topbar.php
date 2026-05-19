@@ -1,7 +1,6 @@
 <?php
 $admin_name  = htmlspecialchars($_SESSION['admin_name'] ?? 'Admin');
 ?>
-<link rel="stylesheet" href="../../assets/css/style.css">
 <header class="topbar">
     <div class="search-box">
         <input type="text" placeholder="Search..." id="adminSearch">

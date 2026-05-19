@@ -25,9 +25,14 @@ $summary = $mysqli->query(
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Budgets – Admin</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <link rel="stylesheet" href="../../assets/css/budget.css">
-    <link rel="stylesheet" href="../admin.css">
+    <?php
+    $themeCssDir = '../../assets/css/';
+    $themeExtraLinks = [
+        $themeCssDir . 'budget.css',
+        '../admin.css',
+    ];
+    include __DIR__ . '/../../components/head_theme.php';
+    ?>
 </head>
 <body>
 <div class="container">
@@ -101,6 +106,6 @@ $summary = $mysqli->query(
         </div>
     </div>
 </div>
-<script src="../../assets/js/script.js"></script>
+<?php $ewScriptHref = '../../assets/js/script.js'; include __DIR__ . '/../../components/script_main.php'; ?>
 </body>
 </html>

@@ -27,8 +27,11 @@ $recent_tx = $mysqli->query(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard – EWallet</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <link rel="stylesheet" href="../admin.css">
+    <?php
+    $themeCssDir = '../../assets/css/';
+    $themeExtraLinks = ['../admin.css'];
+    include __DIR__ . '/../../components/head_theme.php';
+    ?>
 </head>
 <body>
 <div class="container">
@@ -106,6 +109,6 @@ $recent_tx = $mysqli->query(
         </div>
     </div>
 </div>
-<script src="../../assets/js/script.js"></script>
+<?php $ewScriptHref = '../../assets/js/script.js'; include __DIR__ . '/../../components/script_main.php'; ?>
 </body>
 </html>

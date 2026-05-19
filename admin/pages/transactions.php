@@ -37,8 +37,11 @@ $tx_types = ['load','send','receive','expense'];
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Transactions – Admin</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <link rel="stylesheet" href="../admin.css">
+    <?php
+    $themeCssDir = '../../assets/css/';
+    $themeExtraLinks = ['../admin.css'];
+    include __DIR__ . '/../../components/head_theme.php';
+    ?>
 </head>
 <body>
 <div class="container">
@@ -100,6 +103,6 @@ $tx_types = ['load','send','receive','expense'];
         </div>
     </div>
 </div>
-<script src="../../assets/js/script.js"></script>
+<?php $ewScriptHref = '../../assets/js/script.js'; include __DIR__ . '/../../components/script_main.php'; ?>
 </body>
 </html>

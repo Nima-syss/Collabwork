@@ -10,6 +10,14 @@
     grid-template-columns: repeat(4, 1fr);
 }
 
+/* Fix: ensure stat-value text is white on primary (dark green) card */
+/* .stats-grid and .admin-panel are on the same element, so no descendant space */
+.stats-grid.admin-panel .stat-card.primary .stat-value,
+.stats-grid.admin-panel .stat-card.primary .stat-label,
+.stats-grid.admin-panel .stat-card.primary .stat-action {
+    color: #ffffff !important;
+}
+
 .admin-grid-2col {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -150,7 +158,9 @@
     margin-bottom: 24px;
 }
 .admin-cat-card {
-    background: #d9d9d9;
+    background: var(--white, #ffffff);
+    border: 1px solid var(--card-border, rgba(27, 63, 36, 0.1));
+    box-shadow: var(--shadow-card, 0 4px 18px rgba(27, 63, 36, 0.08));
     border-radius: 12px;
     padding: 14px 16px;
 }
@@ -175,13 +185,7 @@
 .admin-page-btn.admin-active { background: #0f5a13; border-color: rgba(15,90,19,.35); color: #fff; }
 .admin-page-btn:hover:not(.admin-active) { background: #e5e5e5; }
 
-/* ── Dark mode — admin-specific elements only ────────────────── */
-body.dark-mode .admin-table thead th,
-body.dark-mode .admin-cat-card,
-body.dark-mode .admin-input,
-body.dark-mode .admin-search-input { background: #d9d9d9; color: #1f1f1f; }
-body.dark-mode .admin-table tbody td { color: #1f1f1f; }
-body.dark-mode .admin-label { color: rgba(0,0,0,.72); }
+/* Dark mode for admin UI — see assets/css/app-shell.css (loaded after this file). */
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 1100px) {
